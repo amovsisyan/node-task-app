@@ -2,13 +2,23 @@ const express = require('express');
 const User = require('../models/user');
 const router = new express.Router();
 
+router.post('/login', async (req, res) => {
+   try {
+       const {email, password} = req.body;
+
+       const user = await User.findByCredentials(email, password);
+       res.send(user);
+   } catch (e) {
+       res.status(400).send(e)
+   }
+});
+
 router.get('/users', async (req, res) => {
     try {
         const users = await User.find();
         res.send(users);
     } catch (e) {
         res.status(500).send(e)
-
     }
 });
 
