@@ -1,5 +1,6 @@
 const express = require('express');
 const Task = require('../models/task');
+const authenticated = require('./middlewares/authenticated');
 const router = new express.Router();
 
 router.get('/tasks', async (req, res) => {
@@ -48,9 +49,12 @@ router.patch('/tasks/:id', async (req, res) => {
     }
 });
 
-router.post('/tasks', async (req, res) => {
+router.post('/tasks', authenticated, async (req, res) => {
     try {
-        const newTask = new Task(req.body);
+        const newTask = new Task({
+            ...req.body,
+            owner: req.user._id
+        });
         await newTask.save();
         res.status(201).send(newTask)
     } catch (e) {
