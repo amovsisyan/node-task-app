@@ -56,6 +56,9 @@ const userSchema = new mongoose.Schema(
                 required: true
             }
         }]
+    },
+    {
+        timestamps: true
     }
 );
 
@@ -65,7 +68,7 @@ userSchema.statics.findByCredentials = async (email, password) => {
         throw new Error('Unable to log in');
     }
 
-    const correctPassword = await bcrypt.compare(password, user.password)
+    const correctPassword = await bcrypt.compare(password, user.password);
 
     if (!correctPassword) {
         throw new Error('Unable to log in');
