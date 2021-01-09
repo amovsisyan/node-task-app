@@ -1,6 +1,7 @@
 const express = require('express');
 const User = require('../models/user');
 const authenticated = require('./middlewares/authenticated');
+const avatarUpload = require('./middlewares/avatar');
 const router = new express.Router();
 
 router.post('/login', async (req, res) => {
@@ -63,6 +64,37 @@ router.delete('/users/me', authenticated, async (req, res) => {
     try {
         await req.user.remove();
         res.status(201).send(req.user)
+    } catch (e) {
+        res.status(400).send(e)
+    }
+});
+
+router.post('/users/me/avatar', authenticated, avatarUpload.single('avatar'), async (req, res) => {
+    try {
+        req.user.avatar = req.file.buffer;
+        await req.user.save();
+        res.status(201).send(req.user)
+    } catch (e) {
+        res.status(400).send(e)
+    }
+}, (error, req, res, next) => {
+    res.status(400).send({error: error.message});
+});
+
+router.delete('/users/me/avatar', authenticated, async (req, res) => {
+    try {
+        req.user.avatar = undefined;
+        await req.user.save();
+        res.status(200).send(req.user)
+    } catch (e) {
+        res.status(400).send(e)
+    }
+});
+
+router.get('/users/me/avatar', authenticated, async (req, res) => {
+    try {
+        res.set('Content-Type', 'image/jpg');
+        res.status(200).send(req.user.avatar)
     } catch (e) {
         res.status(400).send(e)
     }
